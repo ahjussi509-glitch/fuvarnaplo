@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🚕 Fuvarnapló 2026</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f5c542">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fuvarnapló">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #0a0f1e;
+  --surface: #111828;
+  --surface2: #1a2438;
+  --accent: #f5c542;
+  --accent2: #ffd966;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --blue: #5dade2;
+  --text: #ffffff;
+  --muted: #9aaac4;
+  --border: #1e2d4a;
+  --radius: 16px;
+  --font-mono: 'Space Mono', monospace;
+  --font: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+}
+
+/* HEADER */
+.app-header {
+  background: #080d18;
+  padding: 20px 16px 16px;
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.app-title {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  font-weight: 700;
+}
+
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.month-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.month-label {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--accent);
+  min-width: 90px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* QUICK STATS BAR */
+.quick-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.qs-item {
+  text-align: center;
+}
+
+.qs-value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.qs-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  flex: 1;
+  min-width: 70px;
+  padding: 10px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+
+/* CONTENT */
+.content { padding: 16px; }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* CALENDAR */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-header {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 700;
+  padding: 4px 0;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.cal-day:active { transform: scale(0.92); }
+
+.cal-day.empty { cursor: default; }
+
+.cal-day.today { border-color: var(--accent); border-width: 2px; }
+
+.cal-day.has-data { background: var(--surface2); }
+
+.cal-day.selected { background: var(--accent); }
+.cal-day.selected .cal-day-num { color: #000; }
+.cal-day.selected .cal-day-amt { color: #000; }
+
+.cal-day-num {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text);
+}
+
+.cal-day-amt {
+  font-size: 8px;
+  color: var(--green);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+/* DAY FORM */
+.day-panel {
+  background: var(--surface2);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.day-panel-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+
+label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+input, select, textarea {
+  background: #f5c542;
+  border: 1px solid #d4a820;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #000000;
+  font-family: var(--font);
+  font-size: 15px;
+  width: 100%;
+  outline: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #6b5010;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #ffffff;
+  border-width: 2px;
+}
+
+textarea { resize: none; height: 60px; font-size: 13px; }
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: none;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-primary { background: var(--accent); color: #000; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-ghost { background: var(--surface2); color: var(--accent); border: 1px solid var(--border); }
+.btn-green { background: var(--green); color: #000; }
+.btn-full { width: 100%; }
+
+/* SHIFT SECTION */
+.shift-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.shift-stat {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.shift-stat-val {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.shift-stat-lbl {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* RIDE LIST */
+.ride-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ride-num {
+  width: 28px;
+  height: 28px;
+  background: var(--surface2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.ride-info { flex: 1; }
+
+.ride-amount {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.ride-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.ride-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.badge-cash { background: #2ecc7133; color: var(--green); }
+.badge-card { background: #3498db33; color: var(--blue); }
+.badge-bolt { background: #f5c54233; color: var(--accent); }
+.badge-uber { background: #ffd96633; color: var(--accent2); }
+
+.ride-del-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+/* PROGRESS BAR */
+.progress-wrap {
+  background: var(--surface2);
+  border-radius: 100px;
+  height: 10px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+
+/* STATS */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-row:last-child { border-bottom: none; }
+
+.stat-name { font-size: 13px; color: var(--muted); }
+.stat-val { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--text); }
+
+/* CHART */
+.chart-wrap {
+  position: relative;
+  height: 120px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding-bottom: 16px;
+}
+
+.chart-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 2px;
+}
+
+.chart-bar {
+  width: 100%;
+  background: var(--green);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease;
+  min-height: 2px;
+  opacity: 0.9;
+}
+
+.chart-bar.today-bar { background: var(--accent); opacity: 1; }
+
+.chart-label {
+  font-size: 8px;
+  color: var(--muted);
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+}
+
+/* WEEKLY */
+.week-card {
+  background: var(--surface2);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.week-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.week-title { font-size: 12px; font-weight: 700; color: var(--text); }
+.week-total { font-family: var(--font-mono); font-size: 14px; color: var(--accent); }
+
+.week-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* PAYMENT BARS */
+.pay-row {
+  margin-bottom: 10px;
+}
+
+.pay-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.pay-name { color: var(--text); font-weight: 600; }
+.pay-pct { color: var(--muted); font-family: var(--font-mono); }
+
+/* GOALS */
+.goal-section { margin-bottom: 12px; }
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.goal-label { font-size: 13px; font-weight: 600; }
+.goal-numbers { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+/* BOTTOM NAV */
+.bottom-fab {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 28px;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(245,197,66,0.35);
+  z-index: 200;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bottom-fab:active { transform: translateX(-50%) scale(0.95); }
+
+/* EXPORT */
+.export-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* SEPARATOR */
+.sep {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--green);
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 13px;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; }
+
+/* Pill group */
+.pill-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.15s;
+}
+
+.pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+.divider-label {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 8px 0;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* AUTOCOMPLETE */
+.suggest-box {
+  position: absolute;
+  top: 100%;
+  left: 0; right: 0;
+  background: #1a2438;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  z-index: 500;
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.suggest-item {
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.3;
+}
+
+.suggest-item:last-child { border-bottom: none; }
+.suggest-item:active, .suggest-item:hover { background: var(--accent); color: #000; }
+.suggest-loading { padding: 10px 14px; font-size: 12px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<div class="app-header">
+  <div class="header-top">
+    <div class="app-title">🚕 FUVARNAPLÓ</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="installBtn" onclick="installApp()" style="display:none;background:var(--accent);color:#000;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;align-items:center;gap:4px">
+        📲 Telepítés
+      </button>
+      <div class="month-selector">
+      <button class="month-btn" onclick="prevMonth()">‹</button>
+      <div class="month-label" id="monthLabel"></div>
+      <button class="month-btn" onclick="nextMonth()">›</button>
+    </div>
+    </div>
+  </div>
+  <div class="quick-stats" id="quickStats"></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" onclick="switchTab('naptar')">📅 Naptár</div>
+  <div class="tab" onclick="switchTab('stat')">📊 Statisztika</div>
+  <div class="tab" onclick="switchTab('celok')">🎯 Célok</div>
+  <div class="tab" onclick="switchTab('export')">💾 Export</div>
+</div>
+
+<div class="content" id="content"></div>
+
+<button class="bottom-fab" id="fabBtn" onclick="openNewRide()">+ Fuvar rögzítése</button>
+
+<script>
+// ===== STATE =====
+const MONTHS = ['Január','Február','Március','Április','Május','Június','Július','Augusztus','Szeptember','Október','November','December'];
+const MONTH_SHORT = ['Jan','Feb','Már','Ápr','Máj','Jún','Júl','Aug','Szep','Okt','Nov','Dec'];
+const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+const PAY_TYPES = ['Készpénz','Bankkártya','City Taxi App','City Taxi Diszpécser'];
+const PAY_COLORS = ['#2ecc71','#3498db','#f5c542','#ff6b35'];
+
+const ZONES = [
+  '— Nincs megadva —',
+  'Belváros (I–VIII. ker.)',
+  'Budai oldal (I, II, III, XI, XII. ker.)',
+  'Pesti oldal (IV–X, XIII–XIV. ker.)',
+  'Külső területek (XV–XXIII. ker.)',
+  'Repülőtér (Ferihegy)',
+  'Agglomeráció (Budapesten túl)',
+];
+const ZONE_COLORS = ['#6b7280','#3498db','#9b59b6','#2ecc71','#e67e22','#e74c3c','#1abc9c'];
+
+const CATEGORIES = [
+  '— Nincs megadva —',
+  'Applikáció',
+  'Előrendelés',
+  'Hoteles',
+  'Külföldi',
+  'Utcai',
+  'Új megrendelő',
+];
+const CAT_COLORS = ['#6b7280','#3498db','#f5c542','#9b59b6','#1abc9c','#e67e22','#e74c3c'];
+
+const today = new Date();
+
+let state = {
+  year: 2026,
+  month: today.getMonth(),
+  tab: 'naptar',
+  selectedDay: null,
+  editRideId: null,
+  showDayPanel: false,
+  rides: [],
+  shifts: {},
+  goals: { daily: 0, weekly: 0 },
+};
+
+function loadState() {
+  try {
+    state.rides = JSON.parse(localStorage.getItem('fn_rides') || '[]');
+    state.shifts = JSON.parse(localStorage.getItem('fn_shifts') || '{}');
+    state.goals = JSON.parse(localStorage.getItem('fn_goals') || '{"daily":0,"weekly":0}');
+    // migrate old data
+    const old = localStorage.getItem('fuvarok2026');
+    if (old) {
+      const oldRides = JSON.parse(old);
+      if (oldRides.length && state.rides.length === 0) {
+        state.rides = oldRides.map((r,i) => ({
+          id: 'migr_'+i,
+          year: r.year || 2026,
+          month: r.month || 0,
+          day: r.day || 1,
+          amount: r.amount || 0,
+          payType: r.payType || 'Egyéb',
+          km: r.km || '',
+          pickupKm: r.pickupKm || '',
+          rideKm: r.rideKm || '',
+          pickupTime: r.pickupTime || '',
+          rideTime: r.rideTime || '',
+          note: r.note || '',
+          time: r.time || '',
+        }));
+        saveState();
+      }
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  localStorage.setItem('fn_rides', JSON.stringify(state.rides));
+  localStorage.setItem('fn_shifts', JSON.stringify(state.shifts));
+  localStorage.setItem('fn_goals', JSON.stringify(state.goals));
+}
+
+// ===== HELPERS =====
+function fmt(n) {
+  return Math.round(n).toLocaleString('hu-HU') + ' Ft';
+}
+
+function fmtShort(n) {
+  if (n >= 1000) return (n/1000).toFixed(1).replace('.',',') + 'e';
+  return Math.round(n).toString();
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}
+
+function timeDiff(start, end) {
+  if (!start || !end) return 0;
+  const [sh,sm] = start.split(':').map(Number);
+  const [eh,em] = end.split(':').map(Number);
+  let d = (eh*60+em)-(sh*60+sm);
+  if (d < 0) d += 1440;
+  return d/60;
+}
+
+function shiftKey(year, month, day) {
+  return `${year}_${month}_${day}`;
+}
+
+function getMonthRides(year, month) {
+  return state.rides.filter(r => r.year===year && r.month===month);
+}
+
+function getDayRides(year, month, day) {
+  return state.rides.filter(r => r.year===year && r.month===month && r.day===day);
+}
+
+function getShift(year, month, day) {
+  return state.shifts[shiftKey(year, month, day)] || { start:'', end:'', startKm:'', endKm:'' };
+}
+
+function getDayTotal(year, month, day) {
+  return getDayRides(year, month, day).reduce((s,r) => s+Number(r.amount), 0);
+}
+
+function getMonthTotal(year, month) {
+  return getMonthRides(year, month).reduce((s,r) => s+(Number(r.amount)||0), 0);
+}
+
+function showToast(msg, color='#2ecc71') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== NAVIGATION =====
+function prevMonth() {
+  if (state.month === 0) { state.month = 11; state.year--; }
+  else state.month--;
+  state.selectedDay = null;
+  render();
+}
+
+function nextMonth() {
+  if (state.month === 11) { state.month = 0; state.year++; }
+  else state.month++;
+  state.selectedDay = null;
+  render();
+}
+
+function switchTab(tab) {
+  state.tab = tab;
+  state.selectedDay = null;
+  render();
+}
+
+function selectDay(d) {
+  if (state.selectedDay === d) {
+    state.selectedDay = null;
+    state.showDayPanel = false;
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    state.selectedDay = d;
+    state.showDayPanel = true;
+    render();
+    // Scroll past the calendar to the day panel
+    setTimeout(() => {
+      const el = document.querySelector('.day-panel');
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }, 80);
+  }
+}
+
+function openNewRide() {
+  if (!state.selectedDay) {
+    const d = today.getDate();
+    state.selectedDay = d;
+    state.showDayPanel = true;
+    state.tab = 'naptar';
+  }
+  state.showDayPanel = true;
+  render();
+  setTimeout(() => {
+    const el = document.getElementById('rideForm');
+    if (el) el.scrollIntoView({ behavior:'smooth' });
+  }, 100);
+}
+
+// ===== RENDER MAIN =====
+function render() {
+  document.getElementById('monthLabel').textContent = MONTH_SHORT[state.month] + ' ' + state.year;
+  renderQuickStats();
+  renderTabs();
+  renderContent();
+}
+
+function renderQuickStats() {
+  const rides = getMonthRides(state.year, state.month);
+  const total = rides.reduce((s,r) => s+(Number(r.amount)||0), 0);
+  const days = new Set(rides.map(r => r.day)).size;
+  const avg = days ? Math.round(total/days) : 0;
+
+  document.getElementById('quickStats').innerHTML = `
+    <div class="qs-item">
+      <div class="qs-value">${fmtShort(total)} Ft</div>
+      <div class="qs-label">Havi bevétel</div>
+    </div>
+    <div class="qs-item">
+      <div class="qs-value">${rides.length}</div>
+      <div class="qs-label">Fuvar</div>
+    </div>
+    <div class="qs-item">
+      <div class="qs-value">${fmtShort(avg)} Ft</div>
+      <div class="qs-label">Napi átlag</div>
+    </div>
+  `;
+}
+
+function renderTabs() {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const tabs = ['naptar','stat','celok','export'];
+    t.className = 'tab' + (state.tab === tabs[i] ? ' active' : '');
+  });
+}
+
+function renderContent() {
+  const c = document.getElementById('content');
+  if (state.tab === 'naptar') c.innerHTML = renderCalendarTab();
+  else if (state.tab === 'stat') c.innerHTML = renderStatTab();
+  else if (state.tab === 'celok') c.innerHTML = renderGoalsTab();
+  else if (state.tab === 'export') c.innerHTML = renderExportTab();
+}
+
+// ===== CALENDAR TAB =====
+function renderCalendarTab() {
+  const dim = DAYS_IN_MONTH[state.month];
+  const firstDay = new Date(state.year, state.month, 1).getDay();
+  const offset = (firstDay + 6) % 7; // Monday first
+
+  let html = `<div class="card">
+    <div class="card-title">📅 ${MONTHS[state.month]} ${state.year}</div>
+    <div class="calendar-grid">
+      ${['H','K','Sz','Cs','P','Sz','V'].map(d => `<div class="cal-header">${d}</div>`).join('')}
+  `;
+
+  for (let i=0; i<offset; i++) html += `<div class="cal-day empty"></div>`;
+
+  for (let d=1; d<=dim; d++) {
+    const dayTotal = getDayTotal(state.year, state.month, d);
+    const dayRides = getDayRides(state.year, state.month, d).length;
+    const isToday = today.getFullYear()===state.year && today.getMonth()===state.month && today.getDate()===d;
+    const isSel = state.selectedDay === d;
+    let cls = 'cal-day';
+    if (dayRides > 0) cls += ' has-data';
+    if (isToday) cls += ' today';
+    if (isSel) cls += ' selected';
+
+    html += `<div class="${cls}" onclick="selectDay(${d})">
+      <div class="cal-day-num">${d}</div>
+      ${dayTotal > 0 ? `<div class="cal-day-amt">${fmtShort(dayTotal)}</div>` : ''}
+    </div>`;
+  }
+
+  html += `</div></div>`;
+
+  if (state.selectedDay && state.showDayPanel) {
+    html += renderDayPanel();
+  }
+
+  return html;
+}
+
+// ===== DAY PANEL =====
+function renderDayPanel() {
+  const d = state.selectedDay;
+  const { year, month } = state;
+  const shift = getShift(year, month, d);
+  const rides = getDayRides(year, month, d);
+  const total = rides.reduce((s,r) => s+(Number(r.amount)||0), 0);
+
+  let shiftHours = timeDiff(shift.start, shift.end);
+  let shiftKm = (shift.endKm && shift.startKm) ? (Number(shift.endKm) - Number(shift.startKm)) : 0;
+  let hourly = shiftHours > 0 ? total / shiftHours : 0;
+  let ridePerHour = shiftHours > 0 ? rides.length / shiftHours : 0;
+  let kmFt = shiftKm > 0 ? total / shiftKm : 0;
+
+  let html = `
+  <div class="day-panel">
+    <div class="day-panel-title">
+      <span>${MONTHS[month]} ${d}. 🗓</span>
+      <button class="close-btn" onclick="selectDay(${d})">×</button>
+    </div>
+
+    <!-- SHIFT -->
+    <div class="card-title">⏱ Műszak</div>
+    <div class="form-grid" style="margin-bottom:10px">
+      <div class="form-group">
+        <label>Kezdés</label>
+        <input type="time" id="shiftStart" value="${shift.start}" onchange="saveShift()">
+      </div>
+      <div class="form-group">
+        <label>Befejezés</label>
+        <input type="time" id="shiftEnd" value="${shift.end}" onchange="saveShift()">
+      </div>
+      <div class="form-group">
+        <label>Start km</label>
+        <input type="number" id="shiftStartKm" value="${shift.startKm}" placeholder="0" onchange="saveShift()">
+      </div>
+      <div class="form-group">
+        <label>End km</label>
+        <input type="number" id="shiftEndKm" value="${shift.endKm}" placeholder="0" onchange="saveShift()">
+      </div>
+    </div>
+
+    <div class="shift-row">
+      <div class="shift-stat">
+        <div class="shift-stat-val">${shiftHours > 0 ? shiftHours.toFixed(1)+'h' : '–'}</div>
+        <div class="shift-stat-lbl">Ledolgozott</div>
+      </div>
+      <div class="shift-stat">
+        <div class="shift-stat-val">${hourly > 0 ? fmtShort(hourly)+' Ft' : '–'}</div>
+        <div class="shift-stat-lbl">Ft/óra</div>
+      </div>
+      <div class="shift-stat">
+        <div class="shift-stat-val">${ridePerHour > 0 ? ridePerHour.toFixed(1) : '–'}</div>
+        <div class="shift-stat-lbl">Fuvar/óra</div>
+      </div>
+      <div class="shift-stat">
+        <div class="shift-stat-val">${kmFt > 0 ? fmtShort(kmFt)+' Ft' : '–'}</div>
+        <div class="shift-stat-lbl">Ft/km</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- RIDE LIST -->
+    <div class="card-title">🚗 Fuvarok (${rides.length}) – ${fmt(total)}</div>
+  `;
+
+  rides.forEach((r, i) => {
+    const badgeMap = {
+      'Készpénz': 'badge-cash',
+      'Bankkártya': 'badge-card',
+      'City Taxi App': 'badge-bolt',
+      'City Taxi Diszpécser': 'badge-uber',
+    };
+    html += `
+    <div class="ride-item">
+      <div class="ride-num">${i+1}</div>
+      <div class="ride-info">
+        <div class="ride-amount">${fmt(r.amount)}</div>
+        <div class="ride-meta">
+          ${r.time ? r.time + ' · ' : ''}
+          <span class="ride-badge ${badgeMap[r.payType]||'badge-cash'}">${r.payType}</span>
+          ${r.category && (Array.isArray(r.category) ? r.category.length > 0 : r.category !== '— Nincs megadva —') ? ` · <span style="font-size:10px;color:var(--accent)">${Array.isArray(r.category) ? r.category.join(', ') : r.category}</span>` : ''}
+          ${r.km ? ' · ' + r.km + ' km' : ''}
+          ${r.note ? ' · ' + r.note : ''}
+        </div>
+        ${(r.fromZone && r.fromZone !== '— Nincs megadva —') || (r.toZone && r.toZone !== '— Nincs megadva —') ? `
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">
+          📍 ${r.fromZone && r.fromZone !== '— Nincs megadva —' ? r.fromZone : '?'} → 🏁 ${r.toZone && r.toZone !== '— Nincs megadva —' ? r.toZone : '?'}
+        </div>` : ''}
+        ${(r.from||r.to) ? `<div style="font-size:10px;color:var(--muted);margin-top:2px;font-style:italic">
+          ${r.from ? r.from : ''}${r.from && r.to ? ' → ' : ''}${r.to ? r.to : ''}
+        </div>` : ''}
+      </div>
+      <button class="ride-del-btn" onclick="editRide('${r.id}')" style="color:var(--accent);font-size:16px">✏️</button>
+      <button class="ride-del-btn" onclick="deleteRide('${r.id}')">🗑</button>
+    </div>`;
+  });
+
+  // ADD RIDE FORM
+  html += `
+    <div class="sep"></div>
+    <div class="card-title">➕ Új fuvar</div>
+
+    <!-- ROW 1: Indulási idő – teljes szélesség -->
+    <div class="form-group" style="margin-bottom:8px">
+      <label>🕐 Indulási idő</label>
+      <input type="time" id="rTime">
+    </div>
+
+    <!-- ROW 2-4: 2 oszlopos rész -->
+    <div class="form-grid" style="margin-bottom:8px">
+      <div class="form-group">
+        <label>⏱ Kiállási idő</label>
+        <input type="text" id="rPickupTime" placeholder="pl. 0:12">
+      </div>
+      <div class="form-group">
+        <label>📏 Kiállási km</label>
+        <input type="number" id="rPickupKm" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>🏁 Érkezési idő</label>
+        <input type="time" id="rArrivalTime">
+      </div>
+      <div class="form-group">
+        <label>🛣 Fuvar km</label>
+        <input type="number" id="rKm" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>💰 Összeg (Ft) *</label>
+        <input type="number" id="rAmount" placeholder="3500">
+      </div>
+      <div class="form-group">
+        <label>💳 Fizetés módja</label>
+        <select id="rPay">
+          <option>Készpénz</option>
+          <option>Bankkártya</option>
+          <option>City Taxi App</option>
+          <option>City Taxi Diszpécser</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Indulási cím + zóna – teljes szélesség -->
+    <div class="form-group" style="margin-bottom:8px;position:relative">
+      <label>📍 Indulási cím</label>
+      <input type="text" id="rFrom" placeholder="Kezdj el gépelni..." autocomplete="off"
+        oninput="searchAddress(this.value,'rFrom','rFromZone','suggestFrom')"
+        onblur="hideSuggest('suggestFrom')">
+      <div id="suggestFrom" class="suggest-box"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>🗺 Indulási zóna <span style="color:var(--green);font-size:9px">● auto-felismert</span></label>
+      <select id="rFromZone">
+        ${ZONES.map(z => `<option>${z}</option>`).join('')}
+      </select>
+    </div>
+
+    <!-- Érkezési cím + zóna – teljes szélesség -->
+    <div class="form-group" style="margin-bottom:8px;position:relative">
+      <label>🏁 Érkezési cím</label>
+      <input type="text" id="rTo" placeholder="Kezdj el gépelni..." autocomplete="off"
+        oninput="searchAddress(this.value,'rTo','rToZone','suggestTo')"
+        onblur="hideSuggest('suggestTo')">
+      <div id="suggestTo" class="suggest-box"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>🗺 Érkezési zóna <span style="color:var(--green);font-size:9px">● auto-felismert</span></label>
+      <select id="rToZone">
+        ${ZONES.map(z => `<option>${z}</option>`).join('')}
+      </select>
+    </div>
+
+    <!-- Kategória – teljes szélesség -->
+    <div class="form-group" style="margin-bottom:8px">
+      <label>🏷 Kategória <span style="color:var(--muted);font-size:9px">(több is választható)</span></label>
+      <div class="pill-group" id="rCategoryPills">
+        ${CATEGORIES.slice(1).map(c => `<div class="pill" onclick="toggleCatPill(this)" data-cat="${c}">${c}</div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Megjegyzés -->
+    <div class="form-group" style="margin-bottom:8px">
+      <label>📝 Megjegyzés</label>
+      <textarea id="rNote" placeholder="Opcionális..."></textarea>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="addRide()" style="margin-top:10px" id="rSaveBtn">✓ Mentés</button>
+    <button class="btn btn-ghost btn-full" onclick="cancelEdit()" style="margin-top:6px;display:none" id="rCancelBtn">✕ Mégse</button>
+  </div>`;
+
+  return html;
+}
+
+function saveShift() {
+  const { year, month, selectedDay: d } = state;
+  if (!d) return;
+  const key = shiftKey(year, month, d);
+  state.shifts[key] = {
+    start: document.getElementById('shiftStart')?.value || '',
+    end: document.getElementById('shiftEnd')?.value || '',
+    startKm: document.getElementById('shiftStartKm')?.value || '',
+    endKm: document.getElementById('shiftEndKm')?.value || '',
+  };
+  saveState();
+  autoBackup();
+  // re-render shift stats only
+  render();
+}
+
+// ===== NOMINATIM AUTOCOMPLETE =====
+let searchTimers = {};
+
+function searchAddress(val, inputId, zoneId, suggestId) {
+  const box = document.getElementById(suggestId);
+  if (!box) return;
+
+  if (val.length < 3) { box.style.display = 'none'; return; }
+
+  // Debounce – 500ms várakozás gépelés után
+  clearTimeout(searchTimers[inputId]);
+  box.innerHTML = '<div class="suggest-loading">⏳ Keresés...</div>';
+  box.style.display = 'block';
+
+  searchTimers[inputId] = setTimeout(async () => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?` +
+        `q=${encodeURIComponent(val)}&` +
+        `countrycodes=hu&` +
+        `format=json&` +
+        `addressdetails=1&` +
+        `limit=6&` +
+        `accept-language=hu`;
+
+      const res = await fetch(url, {
+        headers: { 'Accept-Language': 'hu', 'User-Agent': 'FuvarNaplo2026/1.0' }
+      });
+      const data = await res.json();
+
+      if (!data.length) {
+        box.innerHTML = '<div class="suggest-loading">Nincs találat</div>';
+        return;
+      }
+
+      box.innerHTML = data.map(item => {
+        // Rövidített cím
+        const a = item.address || {};
+        const parts = [
+          a.road || a.pedestrian || a.footway,
+          a.house_number,
+          a.suburb || a.neighbourhood || a.quarter,
+          a.city || a.town || a.village || a.municipality,
+          a.postcode
+        ].filter(Boolean);
+        const short = parts.length ? parts.join(', ') : item.display_name.split(',').slice(0,3).join(',');
+
+        return `<div class="suggest-item"
+          onmousedown="selectAddress('${inputId}','${zoneId}','${suggestId}',${JSON.stringify(short).replace(/'/g,"\\'")},'${item.display_name.replace(/'/g,"\\'")}')">
+          📍 ${short}
+        </div>`;
+      }).join('');
+
+    } catch(e) {
+      box.innerHTML = '<div class="suggest-loading">Hálózati hiba – próbáld újra</div>';
+    }
+  }, 500);
+}
+
+function selectAddress(inputId, zoneId, suggestId, shortName, fullName) {
+  const inp = document.getElementById(inputId);
+  if (inp) inp.value = shortName;
+  hideSuggest(suggestId);
+  // Auto zone detection from full address
+  autoZoneFromText(fullName, zoneId);
+}
+
+function hideSuggest(suggestId) {
+  setTimeout(() => {
+    const box = document.getElementById(suggestId);
+    if (box) box.style.display = 'none';
+  }, 150);
+}
+
+function autoZoneFromText(text, zoneId) {
+  const zone = detectZone(text);
+  if (zone) {
+    const sel = document.getElementById(zoneId);
+    if (sel) sel.value = zone;
+  }
+}
+function detectZone(text) {
+  if (!text) return null;
+  const t = text.toLowerCase().trim();
+
+  // Repülőtér
+  if (/ferihegy|repül[oő]|liszt ferenc|lgi|bp[l]|terminal|t[e2]rminal|kistarcsa.*repül|vecsés|1185/.test(t)) {
+    return 'Repülőtér (Ferihegy)';
+  }
+
+  // Agglomeráció – városok Budapesten kívül
+  if (/budaörs|budakeszi|szigetszentmikl|érd|érdi|dunakeszi|göd|fót|csepel.*duna|pomáz|szentendre|visegrád|vác|gödöll[oő]|vecsés|gyál|maglód|monor|pécel|isaszeg|kerepes|csömör|mogyoród|ecser|üllő|ócsa|bugyi|dunaharaszti|taksony|szigethalom|halásztelek|diósd|törökbálint|biatorbágy|herceghalom|pilisvörösvár|piliscsaba|solymár|nagykovácsi|telki|páty|etyek|martonvásár|százhalombatta|albertirsa|cegléd|dabas|ráckeve|szigetcsép/.test(t)) {
+    return 'Agglomeráció (Budapesten túl)';
+  }
+
+  // Irányítószám alapú felismerés
+  const zipMatch = t.match(/\b(1\d{3})\b/);
+  if (zipMatch) {
+    const zip = parseInt(zipMatch[1]);
+    const ker = Math.floor((zip - 1000) / 10);
+    if ([1,2,3,4,5,6,7,8].includes(ker)) return 'Belváros (I–VIII. ker.)';
+    if ([11,12].includes(ker) || zip >= 1010 && zip <= 1039) {
+      // I, II, III, XI, XII
+      if ([1,2,3,11,12].includes(ker)) return 'Budai oldal (I, II, III, XI, XII. ker.)';
+    }
+    if ([4,5,6,7,8,9,10,13,14].includes(ker)) return 'Pesti oldal (IV–X, XIII–XIV. ker.)';
+    if (ker >= 15 && ker <= 23) return 'Külső területek (XV–XXIII. ker.)';
+  }
+
+  // Kerület szöveges (I. ker, 1. kerület stb.)
+  const kerMatch = t.match(/\b([ivxlcdm]+|[1-9]|1[0-9]|2[0-3])[.\s]*(ker[.\s]|kerület)/i);
+  if (kerMatch) {
+    const raw = kerMatch[1].toLowerCase();
+    const romanMap = {i:1,ii:2,iii:3,iv:4,v:5,vi:6,vii:7,viii:8,ix:9,x:10,xi:11,xii:12,xiii:13,xiv:14,xv:15,xvi:16,xvii:17,xviii:18,xix:19,xx:20,xxi:21,xxii:22,xxiii:23};
+    const k = romanMap[raw] || parseInt(raw);
+    if ([1,2,3,4,5,6,7,8].includes(k)) return 'Belváros (I–VIII. ker.)';
+    if ([1,2,3,11,12].includes(k)) return 'Budai oldal (I, II, III, XI, XII. ker.)';
+    if ([4,5,6,7,8,9,10,13,14].includes(k)) return 'Pesti oldal (IV–X, XIII–XIV. ker.)';
+    if (k >= 15 && k <= 23) return 'Külső területek (XV–XXIII. ker.)';
+  }
+
+  // Ismert helyek – Belváros
+  if (/keleti|nyugati|déli|kelet|blaha|astoria|deák|oktogon|operaház|opera|andrássy|rákóczi|múzeum|kalvin|fővám|corvin|üllői út|nagykörút|ferenciek|vörösmarty|váci|gellért|szabadság híd|lánchíd|margit híd|parlament|bazilika|belvár|várhegy|vár|citadella|szabadság tér|széchenyi/.test(t)) {
+    return 'Belváros (I–VIII. ker.)';
+  }
+
+  // Ismert helyek – Budai
+  if (/budaörs|kelenföld|albertfalva|gazdagrét|budafok|tétényi|kelenföldi|paskál|móricz|kosztolányi|etele|fehér út|alkotás|hegyvidék|krisztinaváros|tabán|naphegy|sashegy|farkasrét|zugliget|szépvölgyi|pesthidegkút|békásmegyer|csillaghegy|aquincum|óbuda|flórián|árpád|kaszásdűlő/.test(t)) {
+    return 'Budai oldal (I, II, III, XI, XII. ker.)';
+  }
+
+  // Ismert helyek – Pesti oldal
+  if (/újpest|angyalföld|lehel|árpád híd|forgách|göncz|dózsa|tattersaal|mexikói|zugló|örs vezér|kőbánya|ecseri|pesterzsébet|soroksár|csepel|kispest|határ út|pestimre|péteri|havanna|pestszentlőrinc|pestszentimre|ferihegyi út|kobánya|józsefváros|ferencváros|lágymányos|infopark|kopaszi|kvassay|soroksári|tököli/.test(t)) {
+    return 'Pesti oldal (IV–X, XIII–XIV. ker.)';
+  }
+
+  // Ismert helyek – Külső területek
+  if (/rákospalota|rákosliget|rákoskert|rákoscsaba|rákoshegy|pestújhely|mátyásföld|sashalom|cinkota|nagyvárad tér|kőér|péceli|rákosmente|feriheg|soroksár|dunaharaszti|csömör|kistarcsa/.test(t)) {
+    return 'Külső területek (XV–XXIII. ker.)';
+  }
+
+  return null;
+}
+
+function autoZone(inputId, selectId) {
+  const text = document.getElementById(inputId)?.value || '';
+  const zone = detectZone(text);
+  if (zone) {
+    const sel = document.getElementById(selectId);
+    if (sel) sel.value = zone;
+  }
+}
+
+function addRide() {
+  const amount = Number(document.getElementById('rAmount')?.value);
+  if (!amount || amount <= 0) { showToast('Add meg az összeget!', '#e74c3c'); return; }
+
+  const fields = {
+    amount,
+    payType: document.getElementById('rPay')?.value || 'Készpénz',
+    time: document.getElementById('rTime')?.value || '',
+    arrivalTime: document.getElementById('rArrivalTime')?.value || '',
+    fromZone: document.getElementById('rFromZone')?.value || '',
+    toZone: document.getElementById('rToZone')?.value || '',
+    category: Array.from(document.querySelectorAll('#rCategoryPills .pill.active')).map(el => el.dataset.cat),
+    from: document.getElementById('rFrom')?.value || '',
+    to: document.getElementById('rTo')?.value || '',
+    km: document.getElementById('rKm')?.value || '',
+    pickupKm: document.getElementById('rPickupKm')?.value || '',
+    pickupTime: document.getElementById('rPickupTime')?.value || '',
+    note: document.getElementById('rNote')?.value || '',
+  };
+
+  if (state.editRideId) {
+    // UPDATE existing ride
+    const idx = state.rides.findIndex(r => r.id === state.editRideId);
+    if (idx !== -1) {
+      state.rides[idx] = { ...state.rides[idx], ...fields };
+    }
+    state.editRideId = null;
+    showToast('Fuvar frissítve! ✓');
+  } else {
+    // ADD new ride
+    state.rides.push({
+      id: uid(),
+      year: state.year,
+      month: state.month,
+      day: state.selectedDay,
+      ...fields,
+    });
+    showToast('Fuvar mentve! ✓');
+  }
+
+  saveState();
+  autoBackup();
+  render();
+}
+
+function toggleCatPill(el) {
+  el.classList.toggle('active');
+}
+
+function setCatPills(cats) {
+  // cats can be array or old string
+  const catArr = Array.isArray(cats) ? cats : (cats && cats !== '— Nincs megadva —' ? [cats] : []);
+  document.querySelectorAll('#rCategoryPills .pill').forEach(el => {
+    el.classList.toggle('active', catArr.includes(el.dataset.cat));
+  });
+}
+
+function editRide(id) {
+  const r = state.rides.find(r => r.id === id);
+  if (!r) return;
+  state.editRideId = id;
+
+  // Scroll to form first
+  setTimeout(() => {
+    const el = document.getElementById('rideForm');
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 50);
+
+  // Fill in form fields
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  set('rAmount', r.amount);
+  set('rTime', r.time);
+  set('rArrivalTime', r.arrivalTime);
+  set('rFrom', r.from);
+  set('rTo', r.to);
+  set('rKm', r.km);
+  set('rPickupKm', r.pickupKm);
+  set('rPickupTime', r.pickupTime);
+  set('rNote', r.note);
+
+  const setSelect = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.value = val;
+  };
+  setSelect('rPay', r.payType);
+  setSelect('rFromZone', r.fromZone);
+  setSelect('rToZone', r.toZone);
+  setCatPills(r.category);
+
+  // Update button labels
+  const saveBtn = document.getElementById('rSaveBtn');
+  const cancelBtn = document.getElementById('rCancelBtn');
+  if (saveBtn) saveBtn.textContent = '✓ Módosítás mentése';
+  if (saveBtn) saveBtn.style.background = 'var(--accent2)';
+  if (cancelBtn) cancelBtn.style.display = 'block';
+}
+
+function cancelEdit() {
+  state.editRideId = null;
+  render();
+}
+
+function deleteRide(id) {
+  if (!confirm('Törlöd ezt a fuvart?')) return;
+  state.rides = state.rides.filter(r => r.id !== id);
+  saveState();
+  autoBackup();
+  showToast('Törölve.', '#e74c3c');
+  render();
+}
+
+// ===== STAT TAB =====
+function renderStatTab() {
+  const { year, month } = state;
+  const rides = getMonthRides(year, month);
+  const total = rides.reduce((s,r) => s+(Number(r.amount)||0), 0);
+  const workDays = new Set(rides.map(r => r.day)).size;
+  const avgDay = workDays ? total / workDays : 0;
+  const avgRide = rides.length ? total / rides.length : 0;
+  const dim = DAYS_IN_MONTH[month];
+
+  // Best day
+  let bestDay = 0, bestDayTotal = 0, bestRideCount = 0;
+  for (let d=1; d<=dim; d++) {
+    const dt = getDayTotal(year, month, d);
+    const dr = getDayRides(year, month, d).length;
+    if (dt > bestDayTotal) { bestDayTotal = dt; bestDay = d; }
+    if (dr > bestRideCount) bestRideCount = dr;
+  }
+
+  // Daily totals for chart
+  const dailyTotals = [];
+  for (let d=1; d<=dim; d++) dailyTotals.push(getDayTotal(year, month, d));
+  const maxDaily = Math.max(...dailyTotals, 1);
+
+  // Payment breakdown
+  const payMap = {};
+  PAY_TYPES.forEach(p => payMap[p] = { count:0, total:0 });
+  rides.forEach(r => {
+    const p = r.payType || 'Egyéb';
+    if (payMap[p]) { payMap[p].count++; payMap[p].total += Number(r.amount)||0; }
+  });
+
+  // Weekly breakdown
+  const weeks = [
+    { label: `${month===1?'Feb':''}1–7`, days: [1,2,3,4,5,6,7] },
+    { label: '8–14', days: [8,9,10,11,12,13,14] },
+    { label: '15–21', days: [15,16,17,18,19,20,21] },
+    { label: '22–'+dim, days: Array.from({length:dim-21},(_,i)=>i+22) },
+  ];
+
+  // Shift stats
+  const shiftData = Object.keys(state.shifts)
+    .filter(k => k.startsWith(`${year}_${month}_`))
+    .map(k => state.shifts[k]);
+  const totalHours = shiftData.reduce((s,sh) => s + timeDiff(sh.start, sh.end), 0);
+  const hourly = totalHours > 0 ? total / totalHours : 0;
+
+  let html = `
+  <!-- Chart -->
+  <div class="card">
+    <div class="card-title">📊 Napi bevétel – ${MONTHS[month]}</div>
+    <div class="chart-wrap" id="chartWrap">
+  `;
+
+  for (let d=0; d<dim; d++) {
+    const v = dailyTotals[d];
+    const h = maxDaily > 0 ? Math.max((v/maxDaily)*100, v>0?4:0) : 0;
+    const isToday = today.getFullYear()===year && today.getMonth()===month && today.getDate()===(d+1);
+    html += `<div class="chart-bar-wrap">
+      <div class="chart-bar${isToday?' today-bar':''}" style="height:${h}%"></div>
+    </div>`;
+  }
+
+  html += `</div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <span style="font-size:10px;color:var(--muted)">1</span>
+      <span style="font-size:10px;color:var(--muted)">${dim}</span>
+    </div>
+  </div>
+
+  <!-- Key Stats -->
+  <div class="card">
+    <div class="card-title">📈 Havi összesítő</div>
+    <div class="stat-row"><span class="stat-name">Összes bevétel</span><span class="stat-val">${fmt(total)}</span></div>
+    <div class="stat-row"><span class="stat-name">Fuvarok száma</span><span class="stat-val">${rides.length}</span></div>
+    <div class="stat-row"><span class="stat-name">Dolgozott napok</span><span class="stat-val">${workDays}</span></div>
+    <div class="stat-row"><span class="stat-name">Napi átlag</span><span class="stat-val">${fmt(avgDay)}</span></div>
+    <div class="stat-row"><span class="stat-name">Fuvaronkénti átlag</span><span class="stat-val">${fmt(avgRide)}</span></div>
+    ${totalHours > 0 ? `<div class="stat-row"><span class="stat-name">Ledolgozott órák</span><span class="stat-val">${totalHours.toFixed(1)} h</span></div>` : ''}
+    ${hourly > 0 ? `<div class="stat-row"><span class="stat-name">Átlag Ft/óra</span><span class="stat-val">${fmt(hourly)}</span></div>` : ''}
+  </div>
+
+  <!-- Peaks -->
+  <div class="card">
+    <div class="card-title">🏆 Csúcsok</div>
+    <div class="stat-row"><span class="stat-name">Legjobb nap</span><span class="stat-val">${bestDay ? MONTHS[month]+' '+bestDay+'.' : '–'}</span></div>
+    <div class="stat-row"><span class="stat-name">Legjobb nap bevétel</span><span class="stat-val">${fmt(bestDayTotal)}</span></div>
+    <div class="stat-row"><span class="stat-name">Max fuvar/nap</span><span class="stat-val">${bestRideCount}</span></div>
+    <div class="stat-row"><span class="stat-name">Fuvar/munkanap átlag</span><span class="stat-val">${workDays ? (rides.length/workDays).toFixed(1) : '–'}</span></div>
+  </div>
+
+  <!-- Payment Breakdown -->
+  <div class="card">
+    <div class="card-title">💳 Fizetési módok</div>
+  `;
+
+  PAY_TYPES.forEach((p, i) => {
+    const d = payMap[p];
+    if (!d.count) return;
+    const pct = total > 0 ? Math.round(d.total/total*100) : 0;
+    html += `
+    <div class="pay-row">
+      <div class="pay-header">
+        <span class="pay-name">${p}</span>
+        <span class="pay-pct">${pct}% · ${fmt(d.total)} · ${d.count} fuvar</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar" style="width:${pct}%;background:${PAY_COLORS[i]}"></div>
+      </div>
+    </div>`;
+  });
+
+  html += `</div>
+
+  <!-- Weekly -->
+  <div class="card">
+    <div class="card-title">📆 Heti bontás</div>
+  `;
+
+  weeks.forEach(w => {
+    const wRides = rides.filter(r => w.days.includes(r.day));
+    const wTotal = wRides.reduce((s,r) => s+(Number(r.amount)||0), 0);
+    const wDays = new Set(wRides.map(r => r.day)).size;
+    if (!wTotal && !wRides.length) return;
+    html += `
+    <div class="week-card">
+      <div class="week-header">
+        <div class="week-title">${MONTHS[month].slice(0,3)} ${w.label}</div>
+        <div class="week-total">${fmt(wTotal)}</div>
+      </div>
+      <div class="week-sub">${wRides.length} fuvar · ${wDays} nap · átlag ${wDays ? fmt(wTotal/wDays) : '–'}/nap</div>
+    </div>`;
+  });
+
+  html += `</div>`;
+
+  // ===== Ft/óra színkód segédfüggvény =====
+  // 0–4500: piros, 4501–6000: zöld, 6001+: lila
+  function hourlyColor(fth) {
+    if (fth <= 0) return { color: 'var(--muted)', label: '–', emoji: '' };
+    if (fth <= 4500) return { color: '#e74c3c', label: 'Célérték alatt', emoji: '🔴' };
+    if (fth <= 6000) return { color: '#2ecc71', label: 'Célértéken', emoji: '🟢' };
+    return { color: '#9b59b6', label: 'Kiváló!', emoji: '🟣' };
+  }
+
+  // Peak hours 17-20 stats
+  const peakHours = [17, 18, 19];
+  const peakMap = {};
+  peakHours.forEach(h => peakMap[h] = { count: 0, total: 0, minutes: 0 });
+
+  rides.forEach(r => {
+    if (!r.time) return;
+    const h = parseInt(r.time.split(':')[0]);
+    if (peakMap[h] !== undefined) {
+      peakMap[h].count++;
+      peakMap[h].total += Number(r.amount) || 0;
+      // Ha van érkezési idő is, számoljuk a perceket
+      if (r.arrivalTime) {
+        peakMap[h].minutes += timeDiff(r.time, r.arrivalTime) * 60;
+      }
+    }
+  });
+
+  const hasPeakData = Object.values(peakMap).some(p => p.count > 0);
+  const peakTotal = Object.values(peakMap).reduce((s, p) => s + p.total, 0);
+  const peakCount = Object.values(peakMap).reduce((s, p) => s + p.count, 0);
+  // Teljes havi Ft/óra (műszak adatok alapján)
+  const monthFtH = totalHours > 0 ? total / totalHours : 0;
+  const monthColor = hourlyColor(monthFtH);
+
+  html += `<div class="card">
+    <div class="card-title">⚡ Ft/óra teljesítmény</div>
+
+    <!-- Havi összesített Ft/óra -->
+    <div style="background:var(--surface2);border-radius:12px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:700">Havi átlag Ft/óra</span>
+        <span style="font-family:var(--font-mono);font-size:16px;font-weight:700;color:${monthColor.color}">
+          ${monthFtH > 0 ? fmt(monthFtH) + '/h' : '–'}
+        </span>
+      </div>
+      ${monthFtH > 0 ? `
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;background:var(--border);border-radius:100px;height:12px;overflow:hidden">
+          <div style="height:100%;border-radius:100px;background:${monthColor.color};width:${Math.min(monthFtH/8000*100,100)}%;transition:width 0.4s"></div>
+        </div>
+        <span style="font-size:11px;color:${monthColor.color};font-weight:700">${monthColor.emoji} ${monthColor.label}</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">
+        Célérték: 5 000 Ft/h · Ledolgozott: ${totalHours.toFixed(1)} h
+      </div>` : `<div style="font-size:12px;color:var(--muted)">Adj meg műszak időpontokat a naptárban!</div>`}
+    </div>
+
+    <!-- Jelmagyarázat -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:11px;background:#e74c3c22;color:#e74c3c;padding:3px 10px;border-radius:20px;font-weight:700">🔴 0–4 500 Ft/h</span>
+      <span style="font-size:11px;background:#2ecc7122;color:#2ecc71;padding:3px 10px;border-radius:20px;font-weight:700">🟢 4 501–6 000 Ft/h</span>
+      <span style="font-size:11px;background:#9b59b622;color:#9b59b6;padding:3px 10px;border-radius:20px;font-weight:700">🟣 6 001+ Ft/h</span>
+    </div>
+
+    <div class="card-title">🕔 Csúcsidő bontás – 17:00–20:00</div>`;
+
+  if (!hasPeakData) {
+    html += `<div style="font-size:13px;color:var(--muted);text-align:center;padding:8px">Még nincs időponttal rögzített fuvar</div>`;
+  } else {
+    html += `<div style="margin-bottom:10px">
+      <div class="stat-row"><span class="stat-name">Csúcsidős fuvarok</span><span class="stat-val">${peakCount} db</span></div>
+      <div class="stat-row"><span class="stat-name">Csúcsidős bevétel</span><span class="stat-val">${fmt(peakTotal)}</span></div>
+      <div class="stat-row"><span class="stat-name">Összes fuvarból</span><span class="stat-val">${rides.length ? Math.round(peakCount/rides.length*100) : 0}%</span></div>
+    </div>`;
+
+    peakHours.forEach(h => {
+      const p = peakMap[h];
+      // Ft/óra: ha van menetidő adat, azzal; különben az 1 óra az alap
+      const hours = p.minutes > 0 ? p.minutes / 60 : (p.count > 0 ? 1 : 0);
+      const fth = hours > 0 ? p.total / hours : 0;
+      const hc = hourlyColor(fth);
+
+      html += `
+      <div style="background:var(--surface2);border-radius:12px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${p.count>0?'8':'0'}px">
+          <span style="font-size:14px;font-weight:700">${h}:00–${h+1}:00</span>
+          <span style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:${p.count>0?hc.color:'var(--muted)'}">
+            ${p.count > 0 ? fmt(fth)+'/h' : '0 fuvar'}
+          </span>
+        </div>
+        ${p.count > 0 ? `
+        <div style="background:var(--border);border-radius:100px;height:10px;overflow:hidden;margin-bottom:6px">
+          <div style="height:100%;border-radius:100px;background:${hc.color};width:${Math.min(fth/8000*100,100)}%;transition:width 0.4s"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px">
+          <span style="color:var(--muted)">${p.count} fuvar · ${fmt(p.total)}</span>
+          <span style="color:${hc.color};font-weight:700">${hc.emoji} ${hc.label}</span>
+        </div>` : ''}
+      </div>`;
+    });
+  }
+
+  html += `</div>`;
+  const zoneMap = {};
+  ZONES.slice(1).forEach(z => zoneMap[z] = { count:0, total:0 });
+  rides.forEach(r => {
+    const z = r.fromZone;
+    if (z && z !== '— Nincs megadva —' && zoneMap[z]) {
+      zoneMap[z].count++;
+      zoneMap[z].total += Number(r.amount)||0;
+    }
+  });
+  const hasZoneData = Object.values(zoneMap).some(z => z.count > 0);
+
+  if (hasZoneData) {
+    html += `<div class="card"><div class="card-title">📍 Zónák szerinti bontás (indulás)</div>`;
+    ZONES.slice(1).forEach((z, i) => {
+      const d = zoneMap[z];
+      if (!d.count) return;
+      const pct = rides.length > 0 ? Math.round(d.count / rides.length * 100) : 0;
+      html += `
+      <div class="pay-row">
+        <div class="pay-header">
+          <span class="pay-name" style="font-size:12px">${z}</span>
+          <span class="pay-pct">${pct}% · ${d.count} fuvar · ${fmt(d.total)}</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar" style="width:${pct}%;background:${ZONE_COLORS[i+1]}"></div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Category stats
+  const catMap = {};
+  CATEGORIES.slice(1).forEach(c => catMap[c] = { count:0, total:0 });
+  rides.forEach(r => {
+    const cats = Array.isArray(r.category) ? r.category : (r.category && r.category !== '— Nincs megadva —' ? [r.category] : []);
+    cats.forEach(c => {
+      if (catMap[c]) { catMap[c].count++; catMap[c].total += Number(r.amount)||0; }
+    });
+  });
+  const hasCatData = Object.values(catMap).some(c => c.count > 0);
+
+  if (hasCatData) {
+    html += `<div class="card"><div class="card-title">🏷 Kategóriák szerinti bontás</div>`;
+    CATEGORIES.slice(1).forEach((c, i) => {
+      const d = catMap[c];
+      if (!d.count) return;
+      const pct = rides.length > 0 ? Math.round(d.count / rides.length * 100) : 0;
+      html += `
+      <div class="pay-row">
+        <div class="pay-header">
+          <span class="pay-name">${c}</span>
+          <span class="pay-pct">${pct}% · ${d.count} fuvar · ${fmt(d.total)}</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar" style="width:${pct}%;background:${CAT_COLORS[i+1]}"></div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  return html;
+}
+
+// ===== GOALS TAB =====
+function renderGoalsTab() {
+  const { year, month } = state;
+  const rides = getMonthRides(year, month);
+  const total = rides.reduce((s,r) => s+(Number(r.amount)||0), 0);
+
+  const todayRides = getDayRides(year, month, today.getDate());
+  const todayTotal = todayRides.reduce((s,r) => s+(Number(r.amount)||0), 0);
+
+  const dailyGoal = Number(state.goals.daily) || 0;
+  const weeklyGoal = Number(state.goals.weekly) || 0;
+
+  // This week rides
+  const dayOfWeek = today.getDay();
+  const weekStart = today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+  const weekDays = [];
+  for (let i=0; i<7; i++) weekDays.push(weekStart+i);
+  const weekRides = rides.filter(r => weekDays.includes(r.day));
+  const weekTotal = weekRides.reduce((s,r) => s+(Number(r.amount)||0), 0);
+
+  const dailyPct = dailyGoal > 0 ? Math.min(todayTotal / dailyGoal * 100, 100) : 0;
+  const weeklyPct = weeklyGoal > 0 ? Math.min(weekTotal / weeklyGoal * 100, 100) : 0;
+
+  // Hour earnings calc
+  const shift = getShift(year, month, today.getDate());
+  const shiftH = timeDiff(shift.start, shift.end);
+  const hourly = shiftH > 0 ? todayTotal / shiftH : 0;
+  const ridePerHour = shiftH > 0 ? todayRides.length / shiftH : 0;
+
+  // All month shifts for km
+  let totalRideKm = 0;
+  rides.forEach(r => { if (r.km) totalRideKm += Number(r.km); });
+  const kmFt = totalRideKm > 0 ? total / totalRideKm : 0;
+
+  return `
+  <div class="card">
+    <div class="card-title">🎯 Célok beállítása</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Napi cél (Ft)</label>
+        <input type="number" id="gDaily" value="${dailyGoal||''}" placeholder="pl. 25000" onchange="saveGoals()">
+      </div>
+      <div class="form-group">
+        <label>Heti cél (Ft)</label>
+        <input type="number" id="gWeekly" value="${weeklyGoal||''}" placeholder="pl. 150000" onchange="saveGoals()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 Mai nap – ${today.getDate()}. ${MONTHS[today.getMonth()]}</div>
+    <div class="goal-section">
+      <div class="goal-header">
+        <span class="goal-label">Napi cél</span>
+        <span class="goal-numbers">${fmt(todayTotal)} / ${dailyGoal ? fmt(dailyGoal) : 'nincs megadva'}</span>
+      </div>
+      ${dailyGoal > 0 ? `
+      <div class="progress-wrap"><div class="progress-bar" style="width:${dailyPct}%;background:${dailyPct>=100?'#2ecc71':'#f5c542'}"></div></div>
+      <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px">${dailyPct.toFixed(0)}%
+        ${dailyGoal > todayTotal ? ' · Még ' + fmt(dailyGoal - todayTotal) + ' hiányzik' : ' ✓'}
+      </div>` : `<div style="font-size:12px;color:var(--muted)">Adj meg napi célt fent!</div>`}
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="stat-row"><span class="stat-name">Mai fuvarok</span><span class="stat-val">${todayRides.length}</span></div>
+    <div class="stat-row"><span class="stat-name">Mai bevétel</span><span class="stat-val">${fmt(todayTotal)}</span></div>
+    ${shiftH > 0 ? `<div class="stat-row"><span class="stat-name">Ledolgozott</span><span class="stat-val">${shiftH.toFixed(1)} h</span></div>` : ''}
+    ${hourly > 0 ? `<div class="stat-row"><span class="stat-name">Ft/óra</span><span class="stat-val">${fmt(hourly)}</span></div>` : ''}
+    ${ridePerHour > 0 ? `<div class="stat-row"><span class="stat-name">Fuvar/óra</span><span class="stat-val">${ridePerHour.toFixed(1)}</span></div>` : ''}
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 Ezen a héten</div>
+    <div class="goal-section">
+      <div class="goal-header">
+        <span class="goal-label">Heti cél</span>
+        <span class="goal-numbers">${fmt(weekTotal)} / ${weeklyGoal ? fmt(weeklyGoal) : 'nincs megadva'}</span>
+      </div>
+      ${weeklyGoal > 0 ? `
+      <div class="progress-wrap"><div class="progress-bar" style="width:${weeklyPct}%;background:${weeklyPct>=100?'#2ecc71':'#3498db'}"></div></div>
+      <div style="text-align:right;font-size:11px;color:var(--muted);margin-top:4px">${weeklyPct.toFixed(0)}%
+        ${weeklyGoal > weekTotal ? ' · Még ' + fmt(weeklyGoal - weekTotal) + ' hiányzik' : ' ✓'}
+      </div>` : `<div style="font-size:12px;color:var(--muted)">Adj meg heti célt fent!</div>`}
+    </div>
+    <div class="stat-row"><span class="stat-name">Heti fuvarok</span><span class="stat-val">${weekRides.length}</span></div>
+    <div class="stat-row"><span class="stat-name">Heti bevétel</span><span class="stat-val">${fmt(weekTotal)}</span></div>
+  </div>
+
+  ${totalRideKm > 0 ? `
+  <div class="card">
+    <div class="card-title">🛣 Kilométer kalkulátor – ${MONTHS[month]}</div>
+    <div class="stat-row"><span class="stat-name">Összes km</span><span class="stat-val">${totalRideKm} km</span></div>
+    <div class="stat-row"><span class="stat-name">Bevétel/km</span><span class="stat-val">${fmt(kmFt)}/km</span></div>
+  </div>` : ''}
+  `;
+}
+
+function saveGoals() {
+  state.goals.daily = Number(document.getElementById('gDaily')?.value) || 0;
+  state.goals.weekly = Number(document.getElementById('gWeekly')?.value) || 0;
+  saveState();
+  render();
+}
+
+// ===== EXPORT TAB =====
+function renderExportTab() {
+  return `
+  <div class="card">
+    <div class="card-title">💾 Mentés & Export</div>
+    <div class="export-grid">
+      <button class="btn btn-primary" onclick="exportJSON()">📦 JSON mentés</button>
+      <button class="btn btn-green" onclick="exportCSV()">📊 CSV export</button>
+    </div>
+    <label class="btn btn-ghost btn-full" style="cursor:pointer">
+      📂 JSON visszaállítás
+      <input type="file" accept=".json" onchange="importJSON(event)" style="display:none">
+    </label>
+    <div class="sep"></div>
+    <label class="btn btn-ghost btn-full" style="cursor:pointer;margin-top:0;background:#1a2438;border-color:var(--accent)">
+      📲 Régi napló import (nap-kulcsos JSON)
+      <input type="file" accept=".json" onchange="importLegacyJSON(event)" style="display:none">
+    </label>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">
+      Felismeri az {&quot;1&quot;:[...],&quot;2&quot;:[...]} formátumot · KP=Készpénz, BANK=Bankkártya, CITY=City Taxi
+    </div>
+    <div class="sep"></div>
+    <label class="btn btn-ghost btn-full" style="cursor:pointer;margin-top:0">
+      📥 CSV import
+      <input type="file" accept=".csv" onchange="importCSV(event)" style="display:none">
+    </label>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">
+      CSV formátum: dátum,összeg,fizetés,km,megjegyzés<br>
+      Pl.: 2026-02-15,3500,Készpénz,12,airport
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Jelenlegi adatok</div>
+    <div class="stat-row"><span class="stat-name">Fuvarok összesen</span><span class="stat-val">${state.rides.length}</span></div>
+    <div class="stat-row"><span class="stat-name">Mentett műszakok</span><span class="stat-val">${Object.keys(state.shifts).length}</span></div>
+    <div class="stat-row"><span class="stat-name">Teljes bevétel (össz.)</span><span class="stat-val">${fmt(state.rides.reduce((s,r)=>s+(Number(r.amount)||0),0))}</span></div>
+  </div>
+
+  <div class="card" style="border-color:var(--red)">
+    <div class="card-title" style="color:var(--red)">⚠️ Veszélyes zóna</div>
+    <button class="btn btn-danger btn-full" onclick="clearAllData()">🗑 Összes adat törlése</button>
+  </div>
+  `;
+}
+
+function autoBackup() {
+  const data = JSON.stringify({ rides: state.rides, shifts: state.shifts, goals: state.goals, exportDate: new Date().toISOString() }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const now = new Date();
+  const stamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  a.download = `fuvarnaplo_${stamp}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+  const data = JSON.stringify({ rides: state.rides, shifts: state.shifts, goals: state.goals, exportDate: new Date().toISOString() }, null, 2);
+  downloadFile(data, 'fuvarnaplo_2026_backup.json', 'application/json');
+  showToast('JSON mentés kész!');
+}
+
+function exportCSV() {
+  const header = 'dátum,összeg,fizetés,km,kiállási_km,megjegyzés\n';
+  const rows = state.rides.map(r => {
+    const date = `${r.year}-${String(r.month+1).padStart(2,'0')}-${String(r.day).padStart(2,'0')}`;
+    return [date, r.amount, r.payType, r.km||'', r.pickupKm||'', (r.note||'').replace(/,/g,' ')].join(',');
+  });
+  downloadFile(header + rows.join('\n'), 'fuvarnaplo_2026.csv', 'text/csv');
+  showToast('CSV export kész!');
+}
+
+function downloadFile(content, name, type) {
+  const blob = new Blob([content], { type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+}
+
+function importLegacyJSON(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      // Ellenőrzés: nap-kulcsos formátum?
+      const keys = Object.keys(data);
+      const isDayKeyed = keys.every(k => !isNaN(parseInt(k)));
+      if (!isDayKeyed) {
+        // Lehet hogy normál backup – próbáljuk azt
+        if (data.rides) {
+          state.rides = data.rides;
+          if (data.shifts) state.shifts = data.shifts;
+          if (data.goals) state.goals = data.goals;
+          saveState();
+          showToast('Visszaállítva! ✓');
+          render();
+        } else {
+          showToast('Ismeretlen formátum!', '#e74c3c');
+        }
+        return;
+      }
+
+      // Melyik hónap/év?
+      const yearInput = prompt('Melyik évre vonatkozik? (pl. 2026)', '2026');
+      const year = parseInt(yearInput) || 2026;
+      const monthInput = prompt('Melyik hónapra? (1=Január, 2=Február...)', String(state.month + 1));
+      const month = (parseInt(monthInput) || 1) - 1;
+
+      // Fizetési mód mapping
+      const payMap = {
+        'KP': 'Készpénz',
+        'BANK': 'Bankkártya',
+        'CITY': 'City Taxi App',
+        'CITY2': 'City Taxi Diszpécser',
+        'KÉSZPÉNZ': 'Készpénz',
+        'KÁRTYA': 'Bankkártya',
+        'BANKKÁRTYA': 'Bankkártya',
+      };
+
+      let imported = 0;
+      keys.forEach(dayKey => {
+        const day = parseInt(dayKey);
+        const dayRides = data[dayKey];
+        if (!Array.isArray(dayRides) || !dayRides.length) return;
+
+        dayRides.forEach(r => {
+          const rawPay = (r.pay || r.payType || 'KP').toString().trim().toUpperCase();
+          const payType = payMap[rawPay] || 'Készpénz';
+          const amount = Number(r.amt || r.amount || 0);
+          if (!amount) return;
+
+          // Kategória kinyerése a megjegyzésből ha benne van
+          const note = (r.note || '').trim();
+          const knownCats = ['Applikáció', 'Előrendelés', 'Hoteles', 'Külföldi', 'Utcai', 'Új megrendelő'];
+          const foundCat = knownCats.filter(c => note.toLowerCase().includes(c.toLowerCase()));
+          const cleanNote = foundCat.reduce((n, c) => n.replace(new RegExp(c, 'gi'), '').trim(), note).trim();
+
+          state.rides.push({
+            id: uid(),
+            year, month, day,
+            amount,
+            payType,
+            time: r.time || '',
+            arrivalTime: '',
+            from: r.from || '',
+            to: r.to || '',
+            fromZone: detectZone(r.from || '') || '',
+            toZone: detectZone(r.to || '') || '',
+            category: foundCat,
+            km: r.km || '',
+            pickupKm: r.pickupKm || '',
+            pickupTime: r.pickupTime || '',
+            note: cleanNote,
+          });
+          imported++;
+        });
+      });
+
+      saveState();
+      showToast(`${imported} fuvar importálva (${MONTHS[month]} ${year})! ✓`);
+      state.month = month;
+      state.year = year;
+      render();
+    } catch(err) {
+      showToast('Hibás fájl! ' + err.message, '#e74c3c');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function importJSON(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.rides) state.rides = data.rides;
+      if (data.shifts) state.shifts = data.shifts;
+      if (data.goals) state.goals = data.goals;
+      saveState();
+      showToast('Visszaállítva! ✓');
+      render();
+    } catch { showToast('Hibás fájl!', '#e74c3c'); }
+  };
+  reader.readAsText(file);
+}
+
+function importCSV(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    let imported = 0;
+    // skip header
+    const start = lines[0].toLowerCase().includes('dát') ? 1 : 0;
+    for (let i=start; i<lines.length; i++) {
+      const cols = lines[i].split(',');
+      if (cols.length < 2) continue;
+      const dateParts = (cols[0]||'').trim().split('-');
+      if (dateParts.length < 3) continue;
+      const year = Number(dateParts[0]);
+      const month = Number(dateParts[1]) - 1;
+      const day = Number(dateParts[2]);
+      const amount = Number(cols[1]) || 0;
+      if (!amount) continue;
+      state.rides.push({
+        id: uid(),
+        year, month, day, amount,
+        payType: cols[2]?.trim() || 'Egyéb',
+        km: cols[3]?.trim() || '',
+        pickupKm: cols[4]?.trim() || '',
+        note: cols[5]?.trim() || '',
+        time: '',
+      });
+      imported++;
+    }
+    saveState();
+    showToast(`${imported} fuvar importálva!`);
+    render();
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  if (!confirm('BIZTOSAN törlöd az összes adatot? Ez nem visszavonható!')) return;
+  state.rides = [];
+  state.shifts = {};
+  saveState();
+  showToast('Törölve.', '#e74c3c');
+  render();
+}
+
+// ===== PWA SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+// Telepítési prompt megjelenítése
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Megjelenítjük a telepítés gombot
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = 'none';
+  showToast('App telepítve! 🎉');
+  deferredPrompt = null;
+});
+
+function installApp() {
+  if (!deferredPrompt) {
+    showToast('Nyisd meg böngészőben a telepítéshez!', '#3498db');
+    return;
+  }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(choice => {
+    if (choice.outcome === 'accepted') showToast('Telepítés folyamatban... 🚀');
+    deferredPrompt = null;
+  });
+}
+
+// ===== INIT =====
+loadState();
+render();
+</script>
+</body>
+</html>
